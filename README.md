@@ -1,5 +1,5 @@
 # goportscan
-Go Concurrency Port Scanning Examples. This was only created as a self learning too to better understand how to use different concurrency methods in Go. 
+Go Concurrency Port Scanning Examples. This was only created as a self learning tool to better understand how to use different concurrency methods in Go. 
 
 Scanner 1. - No concurrency  
 Scanner 2. - Concurrency using WaitGroups (requires mutex to prevent race condition involving results output)  
