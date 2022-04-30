@@ -9,7 +9,8 @@ Scanner 3. - Concurrency using Channels and Work Pools (work pool size currently
 - No tests
 - Function `addDelay()` used to slow down scanning and allow viewing on some output from scanners.
 - Not currently supporting commandline arguments. Need to manually edit values in function `main()`.
-- Will need to have services running if scanner localhost or try using scanme.nmap.org
+- Will need to have services running if scanning your own localhost or try using address scanme.nmap.org.
+  - If on a macOS or system with python etc. you can start a simple http service `python -m SimpleHTTPServer 80` using different port numbers to simulate different services.
 - Not currently working with UDP protocol, will just response all ports are open.
 
 #### Sample Output
