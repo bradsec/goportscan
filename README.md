@@ -8,7 +8,8 @@ Scanner 3. - Concurrency using Channels and Work Pools (work pool size currently
 #### Issues / Notes
 - Function `addDelay()` used to slow down scanning and allow viewing on some output from scanners.
 - Does not currently support commandline arguments. Manually edit values in function `main()`.
-- Currently only working with TCP
+- Only working with TCP
+- Only scanning single host / address
 - No tests
 - Will need to have services running if scanning your own localhost (127.0.0.1) or try using address scanme.nmap.org.
 
