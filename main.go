@@ -34,8 +34,9 @@ type ScanDetails struct {
 	Address         Address
 	PortRange       PortRange
 	NetworkProtocol NetworkProtocol
+	ScanDateTime    string
 	TimerStart      time.Time
-	TimerResult     time.Duration
+	TimerResult     float64
 	PortResult      []PortResult
 }
 
@@ -43,8 +44,10 @@ func addDelay() {
 	time.Sleep(time.Second / 10)
 }
 
-func (s ScanDetails) runTime() {
-	fmt.Printf("[+] Scan Runtime: %s\n", s.TimerResult)
+func getDateTime() string {
+	dtNow := time.Now()
+	dtString := dtNow.Format("2006-01-02 15:04:05 MST")
+	return dtString
 }
 
 func (s ScanDetails) portSummary() {
@@ -62,7 +65,15 @@ func (s ScanDetails) portSummary() {
 			closedPortsCount++
 		}
 	}
-	fmt.Printf("[+] Open Ports: %d %v\n[+] Closed Ports: %d\n", openPortsCount, openPorts, closedPortsCount)
+	fmt.Printf("[+] Scan summary: %d closed ports (conn-refused) %d open ports\n", closedPortsCount, openPortsCount)
+	if openPortsCount > 0 {
+		fmt.Printf("\n    PORT\tSTATE\n")
+		for _, p := range openPorts {
+			fmt.Printf("    %s/%d\t%s\n", s.NetworkProtocol.Type, p, "Open")
+		}
+	} else {
+		fmt.Printf("[+] Host may be down or blocking all connections.\n")
+	}
 }
 
 func (s ScanDetails) jsonResults() {
@@ -132,12 +143,17 @@ func scannerOne(scanAddress Address, scanRange PortRange, scanProtocol NetworkPr
 	s1.PortRange = scanRange
 	s1.Address = scanAddress
 	s1.NetworkProtocol = scanProtocol
-	fmt.Printf("\n[*] Starting %s %s scan of %s...\n", s1.Name, s1.NetworkProtocol.Type, s1.Address.Name)
+	s1.ScanDateTime = getDateTime()
+
+	fmt.Printf("\n[*] Starting Go PortScan at %s\n", s1.ScanDateTime)
+	fmt.Printf("[+] Scan method: %s\n", s1.Name)
+	fmt.Printf("[+] Target address: %s\n", s1.Address.Name)
+	fmt.Printf("[+] Port range: %d-%d\n", s1.PortRange.Start, s1.PortRange.End)
 	for i := scanRange.Start; i <= scanRange.End; i++ {
 		scanPortSlow(i, &s1)
 	}
-	s1.TimerResult = time.Since(s1.TimerStart)
-	fmt.Printf("\n\033[1A\033[K[+] Scan Completed.\n")
+	s1.TimerResult = time.Now().Sub(s1.TimerStart).Seconds()
+	fmt.Printf("\n\033[1A\033[K[*] Scan done: 1 IP address scanned in %.2f seconds.\n", s1.TimerResult)
 	return
 }
 
@@ -150,25 +166,35 @@ func scannerTwo(scanAddress Address, scanRange PortRange, scanProtocol NetworkPr
 	s2.PortRange = scanRange
 	s2.Address = scanAddress
 	s2.NetworkProtocol = scanProtocol
-	fmt.Printf("\n[*] Starting %s %s scan of %s...\n", s2.Name, s2.NetworkProtocol.Type, s2.Address.Name)
+	s2.ScanDateTime = getDateTime()
+
+	fmt.Printf("\n[*] Starting Go PortScan at %s\n", s2.ScanDateTime)
+	fmt.Printf("[+] Scan method: %s\n", s2.Name)
+	fmt.Printf("[+] Target address: %s\n", s2.Address.Name)
+	fmt.Printf("[+] Port range: %d-%d\n", s2.PortRange.Start, s2.PortRange.End)
 	for i := scanRange.Start; i <= scanRange.End; i++ {
 		wg.Add(1)
 		go scanPortWg(i, &wg, &m, &s2)
 	}
 	wg.Wait()
-	s2.TimerResult = time.Since(s2.TimerStart)
-	fmt.Printf("\n\033[1A\033[K[+] Scan Completed.\n")
+	s2.TimerResult = time.Now().Sub(s2.TimerStart).Seconds()
+	fmt.Printf("\n\033[1A\033[K[*] Scan done: 1 IP address scanned in %.2f seconds.\n", s2.TimerResult)
 	return
 }
 
 func scannerThree(scanAddress Address, scanRange PortRange, scanProtocol NetworkProtocol) (s3 ScanDetails) {
 	// Concurrency using channels and worker pools
 	s3.TimerStart = time.Now()
-	s3.Name = "Concurrency using channels and worker pools"
+	s3.Name = "Concurrency using Channels and Worker Pools"
 	s3.PortRange = scanRange
 	s3.Address = scanAddress
 	s3.NetworkProtocol = scanProtocol
-	fmt.Printf("\n[*] Starting %s %s scan of %s...\n", s3.Name, s3.NetworkProtocol.Type, s3.Address.Name)
+	s3.ScanDateTime = getDateTime()
+
+	fmt.Printf("\n[*] Starting Go PortScan at %s\n", s3.ScanDateTime)
+	fmt.Printf("[+] Scan method: %s\n", s3.Name)
+	fmt.Printf("[+] Target address: %s\n", s3.Address.Name)
+	fmt.Printf("[+] Port range: %d-%d\n", s3.PortRange.Start, s3.PortRange.End)
 	ports := make(chan int, 100)
 	results := make(chan PortResult)
 
@@ -194,8 +220,8 @@ func scannerThree(scanAddress Address, scanRange PortRange, scanProtocol Network
 
 	close(ports)
 	close(results)
-	s3.TimerResult = time.Since(s3.TimerStart)
-	fmt.Printf("\n\033[1A\033[K[+] Scan Completed.\n")
+	s3.TimerResult = time.Now().Sub(s3.TimerStart).Seconds()
+	fmt.Printf("\n\033[1A\033[K[*] Scan done: 1 IP address scanned in %.2f seconds.\n", s3.TimerResult)
 	return
 }
 
@@ -209,17 +235,14 @@ func main() {
 
 	// Initiate Scanner One - No Concurrency
 	s1 := scannerOne(scanAddress, scanRange, scanProtocol)
-	s1.runTime()
 	s1.portSummary()
 
 	// Initiate Scanner Two - Concurrency using WaitGroups
 	s2 := scannerTwo(scanAddress, scanRange, scanProtocol)
-	s2.runTime()
 	s2.portSummary()
 
 	// Initiate Scanner Three - Concurrency using Channels
 	s3 := scannerThree(scanAddress, scanRange, scanProtocol)
-	s3.runTime()
 	s3.portSummary()
 
 	// s1.jsonResults()
