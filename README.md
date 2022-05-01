@@ -28,11 +28,11 @@ kill -9 `ps -ef | grep SimpleHTTPServer | awk '{print $2}'`
 ```
 [ Go Concurrency Port Scanning Examples ]
 
-[*] Starting Go PortScan at 2022-05-01 11:52:54 AEST
+[*] Starting Go PortScan at 2022-05-01 11:55:51 AEST
 [+] Scan method: Non-Concurrency
 [+] Target address: 127.0.0.1
 [+] Port range: 21-100
-[*] Scan done: 1 IP address scanned in 8.25 seconds.
+[*] Scan done: 1 IP address scanned in 8.23 seconds.
 [+] Scan summary: 77 closed ports (conn-refused) 3 open ports
 
     PORT        STATE
@@ -40,7 +40,7 @@ kill -9 `ps -ef | grep SimpleHTTPServer | awk '{print $2}'`
     tcp/53      Open
     tcp/80      Open
 
-[*] Starting Go PortScan at 2022-05-01 11:53:02 AEST
+[*] Starting Go PortScan at 2022-05-01 11:55:59 AEST
 [+] Scan method: Concurrency using WaitGroups
 [+] Target address: 127.0.0.1
 [+] Port range: 21-100
@@ -52,8 +52,8 @@ kill -9 `ps -ef | grep SimpleHTTPServer | awk '{print $2}'`
     tcp/53      Open
     tcp/80      Open
 
-[*] Starting Go PortScan at 2022-05-01 11:53:03 AEST
-[+] Scan method: Concurrency using channels and worker pools
+[*] Starting Go PortScan at 2022-05-01 11:55:59 AEST
+[+] Scan method: Concurrency using Channels and Worker Pools
 [+] Target address: 127.0.0.1
 [+] Port range: 21-100
 [*] Scan done: 1 IP address scanned in 0.11 seconds.
